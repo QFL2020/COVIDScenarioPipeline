@@ -54,6 +54,7 @@ load_cum_inf_geounit_dates <- function(scn_dirs,
 
   rc <- list()
   for (i in 1:length(scn_dirs)) {
+   
       rc[[i]] <- load_scenario_sims_filtered(scn_dirs[i],
                                              display_dates = display_dates,
                                              num_files = num_files,

@@ -476,6 +476,8 @@ plot_line_hospPeak_time_county <- function (hosp_cty_peaks,
 ##'
 ##' @export
 ##'
+##'
+
 plot_geounit_attack_rate_map <- function (cum_inf_geounit_dates,
                                            geodata,
                                            shp,

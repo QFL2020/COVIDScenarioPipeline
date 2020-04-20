@@ -32,20 +32,20 @@ load_cum_inf_geounit_dates <- function(scn_dirs,
   }
   
   display_dates <- lubridate::ymd(display_dates)
-  inf_pre_process <- function(x, display_dates, incl_geoids) {
+  inf_pre_process <- function(x, display_dates) {
     x %>%
       dplyr::filter(comp == "cumI") %>%
       dplyr::filter(time %in% display_dates)
   }
   
   if (!is.null(incl_geoids)) {
-    inf_post_process <- function(x, display_dates, incl_geoids) {
+    inf_post_process <- function(x, incl_geoids) {
       x %>%
         ungroup %>%
         dplyr::filter(!is.na(time), geoid %in% incl_geoids)
     }
   } else {
-    inf_post_process <- function(x, display_dates, incl_geoids) {
+    inf_post_process <- function(x) {
       x %>%
         ungroup %>%
         dplyr::filter(!is.na(time))
@@ -193,7 +193,7 @@ load_ts_current_hosp_geounit <- function(scn_dirs,
   end_date <- as.Date(end_date)
   ##filter to munge the data at the scenario level
   if (!is.null(incl_geoids)) {
-    hosp_post_process <- function(x) {
+    hosp_post_process <- function(x, incl_geoids, end_date) {
       x %>%
         dplyr::filter(!is.na(time) & geoid %in% incl_geoids, time <= end_date) %>%
         dplyr::select(time,
@@ -215,7 +215,7 @@ load_ts_current_hosp_geounit <- function(scn_dirs,
         ungroup()
     }
   } else {
-    hosp_post_process <- function(x) {
+    hosp_post_process <- function(x, end_date) {
       x %>%
         dplyr::filter(!is.na(time) & time <= end_date) %>%
         dplyr::select(time,
@@ -292,7 +292,7 @@ load_hosp_geocombined_totals <- function(scn_dirs,
   
   ##filter to munge the data at the scenario level
   if (!is.null(incl_geoids)) {
-    hosp_post_process <- function(x) {
+    hosp_post_process <- function(x, incl_geoids) {
       x %>%
         dplyr::filter(!is.na(time) & (geoid %in% incl_geoids)) %>%
         group_by(time, sim_num) %>%
@@ -460,7 +460,7 @@ load_hosp_geounit_peak_date <- function(scn_dirs,
   
   display_date <- as.Date(display_date)
   if (!is.null(incl_geoids)) {
-    hosp_post_process <- function(x) {
+    hosp_post_process <- function(x, incl_geoids, display_date) {
       x %>%
         dplyr::rename(mx_var = !!max_var) %>%
         dplyr::filter(!is.na(time), geoid %in% incl_geoids, time <= display_date) %>%
@@ -469,7 +469,7 @@ load_hosp_geounit_peak_date <- function(scn_dirs,
         ungroup()
     }
   } else {
-    hosp_post_process <- function(x) {
+    hosp_post_process <- function(x, display_date) {
       x %>%
         dplyr::rename(mx_var = !!max_var) %>%
         dplyr::filter(!is.na(time), time <= display_date) %>%
@@ -543,7 +543,7 @@ load_hosp_geounit_threshold <- function(
   
   end_date <- as.Date(end_date)
   if (!is.null(incl_geoids)) {
-    hosp_post_process <- function(x) {
+    hosp_post_process <- function(x, incl_geoids, end_date) {
       x %>%
         dplyr::filter(!is.na(time), geoid %in% incl_geoids, time <= end_date) %>%
         group_by(geoid) %>% 
@@ -564,7 +564,7 @@ load_hosp_geounit_threshold <- function(
         ungroup()
     }
   } else {
-    hosp_post_process <- function(x) {
+    hosp_post_process <- function(x, end_date) {
       x %>%
         dplyr::filter(!is.na(time), time <= end_date) %>%
         group_by(geoid) %>% 
@@ -773,13 +773,13 @@ load_hosp_geounit_relative_to_threshold <- function(
   end_date <- lubridate::as_date(end_date)
   
   if(!is.null(incl_geoids)){
-    hosp_post_process <- function(x){
+    hosp_post_process <- function(x, incl_geoids, end_date){
       x %>%
         dplyr::filter(!is.na(time), geoid %in% incl_geoids) %>%
         dplyr::filter(time <= end_date)  
     }
   } else{
-    hosp_post_process <- function(x){
+    hosp_post_process <- function(x, end_date){
       x %>%
         dplyr::filter(!is.na(time)) %>%
         dplyr::filter(time <= end_date)  

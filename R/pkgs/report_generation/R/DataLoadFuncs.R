@@ -59,8 +59,8 @@ read_file_of_type <- function(extension,...){
 ##' @export
 load_scenario_sims_filtered <- function(scenario_dir, 
                                         num_files = NA,
-                                        post_process = function(x){x},
-                                        pre_process = function(x){x},
+                                        post_process = function(x) {x},
+                                        pre_process = function(x) {x},
                                         geoid_len = 0,
                                         padding_char = "0",
                                         file_extension = 'auto',
@@ -93,7 +93,7 @@ load_scenario_sims_filtered <- function(scenario_dir,
   read_file <- read_file_of_type(file_extension)
   
   if (geoid_len > 0) {
-    padfn <- function(x, geoid_len, padding_char) {x%>% dplyr::mutate(geoid = str_pad(geoid,width =geoid_len,pad=padding_char))}
+    padfn <- function(x) {x%>% dplyr::mutate(geoid = str_pad(geoid,width =geoid_len,pad=padding_char))}
   } else {
     padfn <- function(x) {x}
   }
@@ -101,7 +101,7 @@ load_scenario_sims_filtered <- function(scenario_dir,
   rc <- foreach(i = 1:length(files)) %dopar% {
     require(tidyverse)
     
-    read_file_of_type("auto")(files[i]) %>%
+    read_file(files[i]) %>%
       pre_process(...) %>%
       pivot_longer(cols=c(-time, -comp), names_to = "geoid", values_to="N") %>% 
       padfn %>%
@@ -158,7 +158,7 @@ load_hosp_sims_filtered <- function(scenario_dir,
 
 
   if (geoid_len > 0) {
-    padfn <- function(x, geoid_len, padding_char) {x%>% dplyr::mutate(geoid = str_pad(geoid,width=geoid_len,pad=padding_char))}
+    padfn <- function(x) {x%>% dplyr::mutate(geoid = str_pad(geoid,width=geoid_len,pad=padding_char))}
   } else {
     padfn <- function(x) {x}
   }

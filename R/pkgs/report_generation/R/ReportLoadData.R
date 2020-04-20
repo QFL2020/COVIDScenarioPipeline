@@ -19,7 +19,7 @@
 ##'
 ##' @export
 load_cum_inf_geounit_dates <- function(scn_dirs,
-                                      display_dates=config$report$formatting$display_dates,
+                                      display_dates,
                                       num_files=NA,
                                       scenariolabels=NULL,
                                       incl_geoids=NULL,
@@ -28,39 +28,40 @@ load_cum_inf_geounit_dates <- function(scn_dirs,
                                       file_extension = 'auto'){
 
   if(is.null(scenariolabels)){
-      warning("You have not specified scenario labels for this function. You may encounter future errors.")  
-    }
-
-  display_dates <- as.Date(display_dates)
-  inf_pre_process <- function(x) {
-    x %>%
-      dplyr::filter(comp == "cumI") %>%
-      dplyr::filter(time %in% display_dates)
+    warning("You have not specified scenario labels for this function. You may encounter future errors.")  
   }
 
+  display_dates <- as.Date(display_dates)
+  
   if (!is.null(incl_geoids)) {
-      inf_post_process <- function(x) {
+      inf_post_process <- function(x, display_dates, incl_geoids) {
           x %>%
               ungroup %>%
-              dplyr::filter(!is.na(time), geoid %in% incl_geoids)
+              dplyr::filter(
+                time %in% display_dates,
+                geoid %in% incl_geoids
+              )
       }
   } else {
-      inf_post_process <- function(x) {
+      inf_post_process <- function(x, display_dates) {
           x %>%
               ungroup %>%
-              dplyr::filter(!is.na(time))
+              dplyr::filter(time %in% display_dates)
       }
   }
 
   rc <- list()
   for (i in 1:length(scn_dirs)) {
-      rc[[i]] <- load_scenario_sims_filtered(scn_dirs[i],
-                                             num_files = num_files,
-                                             pre_process = inf_pre_process,
-                                             post_process = inf_post_process,
-                                             geoid_len = geoid_len,
-                                             padding_char = padding_char,
-                                             file_extension = file_extension)
+      rc[[i]] <- load_hosp_sims_filtered(
+        scn_dirs[i],
+        num_files = num_files,
+        name_filter = '',
+        post_process = inf_post_process,
+        geoid_len = geoid_len,
+        padding_char = padding_char,
+        file_extension = file_extension,
+        display_dates = display_dates
+      )
       
       rc[[i]]$scenario_num <- i
       rc[[i]]$scenario_name <- scenariolabels[[i]]

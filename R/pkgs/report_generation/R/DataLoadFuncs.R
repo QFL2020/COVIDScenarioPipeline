@@ -80,7 +80,7 @@ load_scenario_sims_filtered <- function(scenario_dir,
     warning(paste("You are only reading in", num_files, "files. Check the num_files argument if this is unexpected."))
   }
 
-  read_file <- read_file_of_type(file_extension)
+  read_file <- report.generation:::read_file_of_type(file_extension)
 
   if (geoid_len > 0) {
     padfn <- function(x) {x%>% dplyr::mutate(geoid = str_pad(geoid,width=geoid_len,pad=padding_char))}
@@ -153,7 +153,7 @@ load_hosp_sims_filtered <- function(scenario_dir,
     padfn <- function(x) {x}
   }
 
-  read_file <- read_file_of_type(file_extension)
+  read_file <- report.generation:::read_file_of_type(file_extension)
 
   rc<- foreach (i = 1:length(files)) %dopar% {
     require(tidyverse)

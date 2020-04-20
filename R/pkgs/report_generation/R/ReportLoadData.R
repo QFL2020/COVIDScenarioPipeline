@@ -19,7 +19,7 @@
 ##'
 ##' @export
 load_cum_inf_geounit_dates <- function(scn_dirs,
-                                      display_dates=config$report$formatting$display_dates,
+                                      display_dates,
                                       num_files=NA,
                                       scenariolabels=NULL,
                                       incl_geoids=NULL,
@@ -31,21 +31,21 @@ load_cum_inf_geounit_dates <- function(scn_dirs,
       warning("You have not specified scenario labels for this function. You may encounter future errors.")  
     }
 
-  display_dates <- as.Date(display_dates)
-  inf_pre_process <- function(x) {
+  display_dates <- lubridate::ymd(display_dates)
+  inf_pre_process <- function(x, display_dates, incl_geoids) {
     x %>%
       dplyr::filter(comp == "cumI") %>%
       dplyr::filter(time %in% display_dates)
   }
 
   if (!is.null(incl_geoids)) {
-      inf_post_process <- function(x) {
+      inf_post_process <- function(x, display_dates, incl_geoids) {
           x %>%
               ungroup %>%
               dplyr::filter(!is.na(time), geoid %in% incl_geoids)
       }
   } else {
-      inf_post_process <- function(x) {
+      inf_post_process <- function(x, display_dates, incl_geoids) {
           x %>%
               ungroup %>%
               dplyr::filter(!is.na(time))
@@ -55,12 +55,14 @@ load_cum_inf_geounit_dates <- function(scn_dirs,
   rc <- list()
   for (i in 1:length(scn_dirs)) {
       rc[[i]] <- load_scenario_sims_filtered(scn_dirs[i],
+                                             display_dates = display_dates,
                                              num_files = num_files,
                                              pre_process = inf_pre_process,
                                              post_process = inf_post_process,
                                              geoid_len = geoid_len,
                                              padding_char = padding_char,
-                                             file_extension = file_extension)
+                                             file_extension = file_extension,
+                                             incl_geoids = incl_geoids)
       
       rc[[i]]$scenario_num <- i
       rc[[i]]$scenario_name <- scenariolabels[[i]]
@@ -95,7 +97,7 @@ load_cum_hosp_geounit_date <- function(scn_dirs,
                                     num_files = NA,
                                     scenariolabels = NULL,
                                     name_filter,
-                                    display_date=config$end_date,
+                                    display_date,
                                     incl_geoids=NULL,
                                     geoid_len = 0,
                                     padding_char = "0",
@@ -362,7 +364,7 @@ load_hosp_geocombined_totals <- function(scn_dirs,
 ##'
 ##' @export 
 load_inf_geounit_peaks_date <- function(scn_dirs,
-                                        display_date=config$end_date,
+                                        display_date,
                                         num_files = NA,
                                         scenariolabels=NULL,
                                         incl_geoids=NULL,
@@ -443,7 +445,7 @@ load_inf_geounit_peaks_date <- function(scn_dirs,
 ### all of the peak times for each sim and each county so we can make a figure for when things peak
 load_hosp_geounit_peak_date <- function(scn_dirs,
                                   max_var,
-                                  display_date = config$end_date,
+                                  display_date,
                                   num_files = NA,
                                   name_filter,
                                   incl_geoids = NULL,
@@ -520,7 +522,7 @@ load_hosp_geounit_threshold <- function(
   scn_dirs,
   threshold,
   variable,
-  end_date = config$end_date,
+  end_date,
   name_filter,
   num_files = NA,
   incl_geoids = NULL,
@@ -749,7 +751,7 @@ load_hosp_geounit_relative_to_threshold <- function(
                       scn_dirs,
                       threshold,
                       variable,
-                      end_date = config$end_date,
+                      end_date,
                       name_filter,
                       num_files = NA,
                       incl_geoids = NULL,

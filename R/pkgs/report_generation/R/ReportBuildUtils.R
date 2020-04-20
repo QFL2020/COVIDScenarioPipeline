@@ -479,8 +479,8 @@ plot_line_hospPeak_time_county <- function (hosp_cty_peaks,
 plot_geounit_attack_rate_map <- function (cum_inf_geounit_dates,
                                            geodata,
                                            shp,
-                                           scenariolabel = config$report$formatting$scenario_labels[1],
-                                           popnodes = config$spatial_setup$popnodes,
+                                           scenariolabel,
+                                           popnodes,
                                            display_date,
                                            viridis_palette = "plasma") {
 
@@ -1529,7 +1529,7 @@ make_excess_heatmap <- function(hosp_dat,
                                 varname,
                                 varlabel,
                                 geodata = NULL,
-                                popnodes = config$spatial_setup$popnodes,
+                                popnodes,
                                 trunc_value = NULL){
   
   shp$threshold <- threshold[match(shp$geoid, names(threshold))]
